@@ -135,15 +135,13 @@ def create_app(overrides=None):
         return app.response_class(js, mimetype="application/javascript")
 
     if is_vercel:
-        public_dir = BASE_DIR / "public"
-
         @app.get("/")
         def vercel_home():
-            return send_from_directory(public_dir, "index.html")
+            return send_from_directory(frontend_dir, "index.html")
 
         @app.get("/<path:filename>")
         def vercel_static_files(filename):
-            return send_from_directory(public_dir, filename)
+            return send_from_directory(frontend_dir, filename)
     else:
         @app.get("/")
         def home():
