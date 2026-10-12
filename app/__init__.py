@@ -134,7 +134,17 @@ def create_app(overrides=None):
         js = 'window.BUYORA_API_BASE = "/api";\n'
         return app.response_class(js, mimetype="application/javascript")
 
-    if not is_vercel:
+    if is_vercel:
+        public_dir = BASE_DIR / "public"
+
+        @app.get("/")
+        def vercel_home():
+            return send_from_directory(public_dir, "index.html")
+
+        @app.get("/<path:filename>")
+        def vercel_static_files(filename):
+            return send_from_directory(public_dir, filename)
+    else:
         @app.get("/")
         def home():
             return send_from_directory(frontend_dir, "index.html")
