@@ -54,7 +54,12 @@ def _load_secret_key(data_dir):
 
 def create_app(overrides=None):
     frontend_dir = BASE_DIR / "frontend"
-    app = Flask(__name__, static_folder=str(frontend_dir), static_url_path="")
+    is_vercel = bool(os.environ.get("VERCEL"))
+    app = Flask(
+        __name__,
+        static_folder=None if is_vercel else str(frontend_dir),
+        static_url_path="" if not is_vercel else None,
+    )
 
     data_dir = BASE_DIR / "data"
     app.config.update(
@@ -73,6 +78,21 @@ def create_app(overrides=None):
         app.config.update(overrides)
     if app.config["DB_DRIVER"] not in ("mysql", "sqlite"):
         raise ValueError("BUYORA_DB_DRIVER must be either 'mysql' or 'sqlite'.")
+    if is_vercel:
+        required = {
+            "BUYORA_DB_HOST": app.config["MYSQL_HOST"],
+            "BUYORA_DB_PORT": app.config["MYSQL_PORT"],
+            "BUYORA_DB_USER": app.config["MYSQL_USER"],
+            "BUYORA_DB_PASSWORD": app.config["MYSQL_PASSWORD"],
+            "BUYORA_DB_NAME": app.config["MYSQL_DATABASE"],
+            "BUYORA_SECRET_KEY": os.environ.get("BUYORA_SECRET_KEY", ""),
+            "BUYORA_ADMIN_PASSWORD": app.config["ADMIN_PASSWORD"],
+        }
+        missing = [name for name, value in required.items() if not value]
+        if missing:
+            raise RuntimeError(
+                "Missing required Vercel environment variables: " + ", ".join(missing)
+            )
     if not app.config.get("SECRET_KEY"):  # Flask pre-fills this key with None
         key_dir = Path(app.config["DATABASE"]).parent if app.config["DB_DRIVER"] == "sqlite" else data_dir
         app.config["SECRET_KEY"] = _load_secret_key(key_dir)
@@ -114,9 +134,10 @@ def create_app(overrides=None):
         js = 'window.BUYORA_API_BASE = "/api";\n'
         return app.response_class(js, mimetype="application/javascript")
 
-    @app.get("/")
-    def home():
-        return send_from_directory(frontend_dir, "index.html")
+    if not is_vercel:
+        @app.get("/")
+        def home():
+            return send_from_directory(frontend_dir, "index.html")
 
     # ----- JSON errors for /api, normal pages elsewhere -----
     def api_error(message, status):

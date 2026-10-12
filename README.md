@@ -52,6 +52,37 @@ Signup, login, cart ke baad order, sab database mein save hota hai aur server ba
 Purane SQLite database ka data automatic import nahi hota. Agar usmein zaroori
 data hai, switch karne se pehle export/import migration karni hogi.
 
+## Vercel deployment
+
+The Flask app can be deployed to Vercel with the root `index.py` entry point.
+The Vercel build copies `frontend/` to `public/` so its HTML assets are served
+as static files, while `/api/*` is handled by Flask. Vercel must use an
+internet-reachable MySQL database; the local `data/mysql-config.json` is not
+used there.
+
+1. Import `Aryan7898D/Buyora` as a project in Vercel, with the repository root
+   as the Root Directory.
+2. In **Project Settings → Environment Variables**, add:
+   - `BUYORA_DB_HOST`: the Railway public TCP host (for example,
+     `hayabusa.proxy.rlwy.net`; use your own value from Railway)
+   - `BUYORA_DB_PORT`: the Railway public TCP port (for example, `48430`)
+   - `BUYORA_DB_USER`: Railway's `MYSQLUSER`
+   - `BUYORA_DB_PASSWORD`: Railway's `MYSQLPASSWORD`
+   - `BUYORA_DB_NAME`: Railway's `MYSQL_DATABASE` or `MYSQLDATABASE`
+   - `BUYORA_SECRET_KEY`: a long, randomly generated secret
+   - `BUYORA_ADMIN_PASSWORD`: a new, strong initial Buyora admin password
+   - `BUYORA_CORS_ORIGIN`: the deployed site's origin, if using a separate
+     frontend domain; otherwise the default is `*`
+3. Deploy. On first startup, Buyora creates its tables and seeds the products
+   and admin account in the Railway database.
+4. Open `/api/health` and `/api/products` on the Vercel deployment to verify
+   the API and database-backed catalog.
+
+Never put database passwords or the secret key in source control or share them
+in screenshots. Set Vercel environment variables for Production and Preview
+only as appropriate. Protect the Railway public database with its own strong
+password and do not expose its credentials.
+
 ## Admin
 
 - Email: `admin@buyora.com`, password: `admin123`
