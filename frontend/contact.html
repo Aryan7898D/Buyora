@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Us — Buyora | Computer Parts Store</title>
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/mobile-nav.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand"><img src="assets/icon.png" alt="Buyora logo"><span class="brand-word">Buy<span>ora</span></span></a>
+    <nav class="main-nav"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="about.html">About</a><a href="contact.html" class="active">Contact</a></nav>
+    <div class="header-actions" style="margin-left:auto;">
+      <a href="login.html" class="icon-btn" aria-label="Account"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+      <a href="cart.html" class="icon-btn" aria-label="Cart"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-count" data-cart-count>0</span></a>
+      <button class="nav-toggle" data-nav-open aria-label="Open menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-drawer" data-nav-drawer>
+  <div class="mobile-drawer-panel">
+    <button class="mobile-drawer-close" data-nav-close aria-label="Close menu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <nav><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="login.html">Account</a></nav>
+  </div>
+</div>
+
+<section class="page-hero">
+  <div class="container">
+    <span class="hero-eyebrow"><span class="dot"></span> Get in touch</span>
+    <h1>We'd love to hear from you.</h1>
+    <p>Questions about an order, a product, or a partnership — send us a note and a real person will get back to you within one business day.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="contact-layout">
+      <div class="glass-card" style="padding:32px;">
+        <h3>Send a message</h3>
+        <form id="contact-form">
+          <div class="form-grid">
+            <div class="form-field"><label>Your name</label><input type="text" required></div>
+            <div class="form-field"><label>Email address</label><input type="email" required></div>
+            <div class="form-field full">
+              <label>What's this about?</label>
+              <select required>
+                <option value="">Select a topic</option>
+                <option>Order question</option>
+                <option>Product question</option>
+                <option>Returns & refunds</option>
+                <option>Partnership</option>
+                <option>Something else</option>
+              </select>
+            </div>
+            <div class="form-field full"><label>Message</label><textarea required placeholder="How can we help?"></textarea></div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-block">Send message</button>
+        </form>
+      </div>
+
+      <div>
+        <div class="contact-info-item">
+          <span class="icon-circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.902.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.908.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
+          <div><b>Call us</b><p style="margin:2px 0 0;">+1 (555) 812-4490<br><span style="font-size:.82rem;">Mon–Fri, 9am–6pm EST</span></p></div>
+        </div>
+        <div class="contact-info-item">
+          <span class="icon-circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16v16H4z"/><path d="M22 6l-10 7L2 6"/></svg></span>
+          <div><b>Email us</b><p style="margin:2px 0 0;">hello@buyora.com<br><span style="font-size:.82rem;">We reply within one business day</span></p></div>
+        </div>
+        <div class="contact-info-item">
+          <span class="icon-circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+          <div><b>Visit us</b><p style="margin:2px 0 0;">148 Market Street, Suite 400<br><span style="font-size:.82rem;">San Francisco, CA 94103</span></p></div>
+        </div>
+        <div class="map-frame">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-top">
+    <div class="footer-brand"><a href="index.html" class="brand"><img src="assets/icon.png" alt="Buyora logo"><span class="brand-word">Buy<span>ora</span></span></a><p>Shop more, live better.</p></div>
+    <div class="footer-col"><h4>Shop</h4><ul><li><a href="shop.html">All products</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="about.html">About us</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+    <div class="footer-col"><h4>Stay updated</h4><form class="newsletter-mini" data-newsletter-form><input type="email" placeholder="Email address" required><button type="submit">Join</button></form></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Buyora. All rights reserved.</span></div>
+</footer>
+
+<script src="js/cart.js"></script>
+<script src="js/main.js"></script>
+<script>
+  document.getElementById("contact-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    e.target.reset();
+    showToast("Message sent — we'll be in touch soon!");
+  });
+</script>
+</body>
+</html>

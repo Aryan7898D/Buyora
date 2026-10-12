@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Cart — Buyora | Computer Parts Store</title>
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/mobile-nav.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand"><img src="assets/icon.png" alt="Buyora logo"><span class="brand-word">Buy<span>ora</span></span></a>
+    <nav class="main-nav"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
+    <form class="header-search" data-search-form><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" placeholder="Search for products..."></form>
+    <div class="header-actions">
+      <a href="login.html" class="icon-btn" aria-label="Account"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+      <a href="cart.html" class="icon-btn" aria-label="Cart"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-count" data-cart-count>0</span></a>
+      <button class="nav-toggle" data-nav-open aria-label="Open menu"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    </div>
+  </div>
+</header>
+
+<div class="mobile-drawer" data-nav-drawer>
+  <div class="mobile-drawer-panel">
+    <button class="mobile-drawer-close" data-nav-close aria-label="Close menu"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <nav><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="about.html">About</a><a href="contact.html">Contact</a><a href="login.html">Account</a></nav>
+  </div>
+</div>
+
+<div class="container"><div class="breadcrumb"><a href="index.html">Home</a><span class="sep">/</span><span class="current">Your Cart</span></div></div>
+
+<section class="section-tight">
+  <div class="container">
+    <h1 style="margin-bottom:28px;">Your cart</h1>
+    <div id="cart-root"></div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-top">
+    <div class="footer-brand"><a href="index.html" class="brand"><img src="assets/icon.png" alt="Buyora logo"><span class="brand-word">Buy<span>ora</span></span></a><p>Shop more, live better.</p></div>
+    <div class="footer-col"><h4>Shop</h4><ul><li><a href="shop.html">All products</a></li></ul></div>
+    <div class="footer-col"><h4>Company</h4><ul><li><a href="about.html">About us</a></li><li><a href="contact.html">Contact</a></li></ul></div>
+    <div class="footer-col"><h4>Stay updated</h4><form class="newsletter-mini" data-newsletter-form><input type="email" placeholder="Email address" required><button type="submit">Join</button></form></div>
+  </div>
+  <div class="footer-bottom"><span>© 2026 Buyora. All rights reserved.</span></div>
+</footer>
+
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/main.js"></script>
+<script>
+  const SHIPPING_FLAT = 99;
+  const FREE_SHIP_THRESHOLD = 1999;
+  const GST_RATE = 0.18;
+  let appliedCoupon = null;
+
+  function money(n){ return formatINR(n); }
+
+  function renderCart(){
+    const root = document.getElementById("cart-root");
+    const lines = Cart.lines();
+
+    if(lines.length === 0){
+      root.innerHTML = `
+        <div class="empty-state glass-card">
+          <div class="icon-circle"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
+          <h3>Your cart is empty</h3>
+          <p style="max-width:340px;margin:0 auto 22px;">Looks like you haven't added anything yet. Let's fix that.</p>
+          <a href="shop.html" class="btn btn-primary">Browse products</a>
+        </div>`;
+      return;
+    }
+
+    const subtotal = Cart.subtotal();
+    const shipping = subtotal >= FREE_SHIP_THRESHOLD ? 0 : SHIPPING_FLAT;
+    const discount = appliedCoupon ? subtotal * appliedCoupon.rate : 0;
+    const tax = (subtotal - discount) * GST_RATE;
+    const total = subtotal - discount + shipping + tax;
+
+    root.innerHTML = `
+      <div class="cart-layout">
+        <div class="glass-card" style="padding:24px;">
+          <table class="cart-table">
+            <thead><tr><th>Product</th><th>Price</th><th>Qty</th><th>Total</th></tr></thead>
+            <tbody>
+              ${lines.map(l => `
+                <tr>
+                  <td>
+                    <div class="cart-item-info">
+                      <img src="${l.product.images[0]}" alt="${l.product.name}">
+                      <div>
+                        <b>${l.product.name}</b>
+                        <span>${l.color ? `Color: <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${l.color};vertical-align:middle;"></span> ` : ""}${l.size ? `Size: ${l.size}` : ""}</span>
+                        <a class="remove-link" data-remove="${l.key}">Remove</a>
+                      </div>
+                    </div>
+                  </td>
+                  <td>${money(l.product.price)}</td>
+                  <td>
+                    <div class="qty-stepper">
+                      <button type="button" data-dec="${l.key}">−</button>
+                      <input type="text" value="${l.qty}" readonly>
+                      <button type="button" data-inc="${l.key}">+</button>
+                    </div>
+                  </td>
+                  <td><b>${money(l.product.price * l.qty)}</b></td>
+                </tr>`).join("")}
+            </tbody>
+          </table>
+          <div style="margin-top:20px;">
+            <a href="shop.html" class="btn btn-outline btn-sm">← Continue shopping</a>
+          </div>
+        </div>
+
+        <div class="glass-card" style="padding:26px;">
+          <h3>Order summary</h3>
+          <div class="coupon-row">
+            <input type="text" id="coupon-input" placeholder="Coupon code (try WELCOME20)">
+            <button class="btn btn-dark btn-sm" id="apply-coupon">Apply</button>
+          </div>
+          <div class="summary-row"><span>Subtotal</span><span>${money(subtotal)}</span></div>
+          ${discount > 0 ? `<div class="summary-row" style="color:var(--teal);"><span>Discount (${appliedCoupon.code})</span><span>−${money(discount)}</span></div>` : ""}
+          <div class="summary-row"><span>Shipping</span><span>${shipping === 0 ? "Free" : money(shipping)}</span></div>
+          <div class="summary-row"><span>Estimated GST (18%)</span><span>${money(tax)}</span></div>
+          <div class="summary-row total"><span>Total</span><span>${money(total)}</span></div>
+          <a href="checkout.html" class="btn btn-primary btn-block" style="margin-top:16px;">Proceed to checkout</a>
+          <p style="font-size:.8rem;text-align:center;margin-top:14px;">🔒 Secure checkout • Free returns within 30 days</p>
+        </div>
+      </div>`;
+
+    root.querySelectorAll("[data-remove]").forEach(el => el.addEventListener("click", () => { Cart.remove(el.dataset.remove); renderCart(); }));
+    root.querySelectorAll("[data-inc]").forEach(el => el.addEventListener("click", () => {
+      const line = Cart.lines().find(l => l.key === el.dataset.inc);
+      Cart.updateQty(el.dataset.inc, Math.min(line.product.stock, line.qty + 1));
+      renderCart();
+    }));
+    root.querySelectorAll("[data-dec]").forEach(el => el.addEventListener("click", () => {
+      const line = Cart.lines().find(l => l.key === el.dataset.dec);
+      Cart.updateQty(el.dataset.dec, line.qty - 1);
+      renderCart();
+    }));
+    const couponBtn = document.getElementById("apply-coupon");
+    if(couponBtn){
+      couponBtn.addEventListener("click", () => {
+        const code = document.getElementById("coupon-input").value.trim().toUpperCase();
+        if(code === "WELCOME20"){
+          appliedCoupon = { code, rate: 0.2 };
+          showToast("Coupon applied: 20% off");
+        }else{
+          showToast("That coupon code isn't valid", "warn");
+        }
+        renderCart();
+      });
+    }
+  }
+
+  renderCart();
+</script>
+</body>
+</html>

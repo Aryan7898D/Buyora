@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — Buyora | Computer Parts Store</title>
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/mobile-nav.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand"><img src="assets/icon.png" alt="Buyora logo"><span class="brand-word">Buy<span>ora</span></span></a>
+    <nav class="main-nav"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
+  </div>
+</header>
+
+<section>
+  <div class="container">
+    <div class="auth-wrap glass-card">
+      <h1 id="auth-title">Welcome back</h1>
+      <p class="sub" id="auth-sub">Sign in to track orders and check out faster.</p>
+
+      <form id="login-form">
+        <div class="form-field"><label>Email address</label><input type="email" id="login-email" required></div>
+        <div class="form-field"><label>Password</label><input type="password" id="login-password" required></div>
+        <div class="remember-row">
+          <label style="display:flex;align-items:center;gap:7px;"><input type="checkbox" style="accent-color:var(--teal);"> Remember me</label>
+          <a href="#">Forgot password?</a>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+      </form>
+
+      <form id="signup-form" style="display:none;">
+        <div class="form-grid">
+          <div class="form-field"><label>First name</label><input type="text" id="signup-first" required></div>
+          <div class="form-field"><label>Last name</label><input type="text" id="signup-last" required></div>
+        </div>
+        <div class="form-field"><label>Email address</label><input type="email" id="signup-email" required></div>
+        <div class="form-field"><label>Password</label><input type="password" id="signup-password" required minlength="6"></div>
+        <button type="submit" class="btn btn-primary btn-block">Create account</button>
+      </form>
+
+      <div class="auth-divider">or continue with</div>
+      <div class="social-auth">
+        <button type="button">🔵 Google</button>
+        <button type="button"> Apple</button>
+      </div>
+
+      <p class="auth-foot" id="auth-toggle-line">
+        Don't have an account? <a href="#" id="toggle-auth">Sign up</a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-bottom" style="border-top:none;"><span>© 2026 Buyora. All rights reserved.</span></div>
+</footer>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/cart.js"></script>
+<script>
+  let isLogin = true;
+
+  function renderAuthMode(){
+    document.getElementById("login-form").style.display = isLogin ? "block" : "none";
+    document.getElementById("signup-form").style.display = isLogin ? "none" : "block";
+    document.getElementById("auth-title").textContent = isLogin ? "Welcome back" : "Create your account";
+    document.getElementById("auth-sub").textContent = isLogin ? "Sign in to track orders and check out faster." : "Join Buyora for a faster checkout and order tracking.";
+    document.getElementById("auth-toggle-line").innerHTML = isLogin
+      ? `Don't have an account? <a href="#" id="toggle-auth">Sign up</a>`
+      : `Already have an account? <a href="#" id="toggle-auth">Sign in</a>`;
+  }
+
+  // Event delegation: the toggle link is re-created each render, so listen on a stable ancestor.
+  document.getElementById("auth-toggle-line").addEventListener("click", (e) => {
+    if(e.target.id === "toggle-auth"){
+      e.preventDefault();
+      isLogin = !isLogin;
+      renderAuthMode();
+    }
+  });
+
+  document.getElementById("login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = document.getElementById("login-email").value;
+    const password = document.getElementById("login-password").value;
+    try{
+      const { token } = await Api.login(email, password);
+      Api.setToken(token);
+      showToast("Signed in successfully");
+      setTimeout(() => window.location.href = "index.html", 700);
+    }catch(err){
+      if(err.isNetworkError){
+        showToast("Backend not running — signed in for this demo session only", "warn");
+        setTimeout(() => window.location.href = "index.html", 900);
+      }else{
+        showToast(err.message || "Sign in failed", "warn");
+      }
+    }
+  });
+
+  document.getElementById("signup-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = `${document.getElementById("signup-first").value} ${document.getElementById("signup-last").value}`.trim();
+    const email = document.getElementById("signup-email").value;
+    const password = document.getElementById("signup-password").value;
+    try{
+      const { token } = await Api.register(name, email, password);
+      Api.setToken(token);
+      showToast("Account created — welcome to Buyora!");
+      setTimeout(() => window.location.href = "index.html", 700);
+    }catch(err){
+      if(err.isNetworkError){
+        showToast("Backend not running — continuing in demo mode", "warn");
+        setTimeout(() => window.location.href = "index.html", 900);
+      }else{
+        showToast(err.message || "Could not create account", "warn");
+      }
+    }
+  });
+</script>
+</body>
+</html>
