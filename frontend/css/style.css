@@ -193,6 +193,35 @@ p{ margin:0 0 1em; }
 .header-search svg{ flex-shrink:0; color:var(--slate); }
 
 .header-actions{ display:flex; align-items:center; gap:8px; margin-left:auto; }
+.my-orders-btn{
+  width:auto;
+  height:42px;
+  border-radius:var(--radius-full);
+  padding:0;
+  min-width:42px;
+  text-decoration:none;
+  font-size:.78rem;
+  letter-spacing:.04em;
+  font-weight:700;
+  background:var(--teal-blue-grad-soft);
+}
+.my-orders-label{
+  white-space:nowrap;
+  width:32px;
+  height:32px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:var(--teal-blue-grad);
+  color:#fff;
+}
+
+@media (max-width: 700px){
+  .my-orders-label{ display:none; }
+  .my-orders-btn{ width:42px; padding:0; justify-content:center; }
+}
+
 .icon-btn{
   position:relative;
   width:42px; height:42px;

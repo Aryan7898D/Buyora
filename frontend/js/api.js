@@ -50,6 +50,9 @@ const Api = {
   login(email, password){
     return Api.request("/auth/login", { method: "POST", body: { email, password } });
   },
+  resetPassword(email, password){
+    return Api.request("/auth/reset-password", { method: "POST", body: { email, password } });
+  },
   me(){
     return Api.request("/auth/me", { auth: true });
   },

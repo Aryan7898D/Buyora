@@ -128,3 +128,16 @@ function renderProductGrid(container, products){
   }
   container.innerHTML = products.map(productCardHTML).join("");
 }
+
+// Keep "My Orders" visible next to account/cart throughout the store.
+document.querySelectorAll(".header-actions").forEach(actions => {
+  if(actions.querySelector('[data-my-orders]')) return;
+  const link = document.createElement("a");
+  link.href = "my-orders.html";
+  link.className = "icon-btn my-orders-btn";
+  link.setAttribute("data-my-orders", "");
+  link.setAttribute("aria-label", "My Orders");
+  link.title = "My Orders";
+  link.innerHTML = `<span class="my-orders-label">MO</span>`;
+  actions.prepend(link);
+});

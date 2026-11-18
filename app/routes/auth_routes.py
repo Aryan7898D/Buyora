@@ -52,6 +52,30 @@ def login():
     return jsonify({"token": make_token(user), "user": public_user(user)})
 
 
+@bp.post("/reset-password")
+def reset_password():
+    data = json_body()
+    email = str(data.get("email") or "").strip().lower()
+    password = str(data.get("password") or "")
+
+    if not EMAIL_RE.match(email):
+        return error("Please provide a valid email address.", 400)
+    if len(password) < 6:
+        return error("Password must be at least 6 characters.", 400)
+
+    db = get_db()
+    user = db.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()
+    if user is None:
+        return error("No account exists with this email.", 404)
+
+    db.execute(
+        "UPDATE users SET password_hash = ? WHERE id = ?",
+        (generate_password_hash(password, method="pbkdf2:sha256"), user["id"]),
+    )
+    db.connection.commit()
+    return jsonify({"message": "Password reset successfully."})
+
+
 @bp.get("/me")
 @login_required
 def me():

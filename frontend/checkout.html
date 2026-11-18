@@ -145,6 +145,26 @@
     });
   });
 
+  function saveLocalOrder(order){
+    const key = "buyora-orders";
+    const orders = JSON.parse(localStorage.getItem(key) || "[]");
+    const normalized = {
+      id: order.id || `BYR-${Date.now()}`,
+      createdAt: order.createdAt || order.created_at || new Date().toISOString(),
+      status: order.status || "Confirmed",
+      shipping: order.shipping || null,
+      items: order.items || lines.map(l => ({
+        name: l.product.name,
+        image: l.product.images[0],
+        qty: l.qty,
+        price: l.product.price
+      })),
+      total: order.total ?? lines.reduce((sum, l) => sum + l.product.price * l.qty, 0)
+    };
+    orders.unshift(normalized);
+    localStorage.setItem(key, JSON.stringify(orders.slice(0, 50)));
+  }
+
   document.getElementById("checkout-form").addEventListener("submit", async (e) => {
     e.preventDefault();
     const btn = document.getElementById("place-order-btn");
@@ -168,6 +188,7 @@
       // Real order: sent to the backend, which re-validates stock and
       // computes pricing itself (never trusts numbers from the browser).
       const { order } = await Api.createOrder({ items, shipping, paymentMethod, couponCode: null });
+      saveLocalOrder(order);
       Cart.clear();
       window.location.href = `order-confirmation.html?orderId=${order.id}`;
     }catch(err){
@@ -176,6 +197,19 @@
         // so the site still works stand-alone.
         console.warn("Buyora backend unreachable, using demo checkout:", err.message);
         setTimeout(() => {
+          saveLocalOrder({
+            id: `DEMO-${Date.now()}`,
+            createdAt: new Date().toISOString(),
+            status: "Confirmed",
+            shipping,
+            items: lines.map(l => ({
+              name: l.product.name,
+              image: l.product.images[0],
+              qty: l.qty,
+              price: l.product.price
+            })),
+            total: lines.reduce((sum, l) => sum + l.product.price * l.qty, 0)
+          });
           Cart.clear();
           window.location.href = "order-confirmation.html?demo=1";
         }, 700);

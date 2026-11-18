@@ -116,6 +116,24 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(short.status_code, 400)
         self.assertEqual(self.c.post("/api/auth/register", json=[1, 2]).status_code, 400)
 
+    def test_reset_password(self):
+        self.register()
+        r = self.c.post("/api/auth/reset-password", json={
+            "email": "priya@example.com",
+            "password": "newsecret123",
+        })
+        self.assertEqual(r.status_code, 200)
+        old_login = self.c.post("/api/auth/login", json={
+            "email": "priya@example.com",
+            "password": "secret123",
+        })
+        new_login = self.c.post("/api/auth/login", json={
+            "email": "priya@example.com",
+            "password": "newsecret123",
+        })
+        self.assertEqual(old_login.status_code, 401)
+        self.assertEqual(new_login.status_code, 200)
+
     def test_login_failures_and_bad_tokens(self):
         self.register()
         wrong = self.c.post("/api/auth/login", json={"email": "priya@example.com", "password": "wrongpass"})

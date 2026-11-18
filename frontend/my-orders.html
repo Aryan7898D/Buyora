@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Orders — Buyora</title>
+<link rel="icon" href="assets/favicon.png">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/mobile-nav.css">
+</head>
+<body>
+<header class="site-header">
+  <div class="header-inner">
+    <a href="index.html" class="brand"><img src="assets/icon.png" alt="Buyora logo"><span class="brand-word">Buy<span>ora</span></span></a>
+    <nav class="main-nav"><a href="index.html">Home</a><a href="shop.html">Shop</a><a href="about.html">About</a><a href="contact.html">Contact</a></nav>
+    <div class="header-actions">
+      <a href="login.html" class="icon-btn" aria-label="Account"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></a>
+      <a href="cart.html" class="icon-btn" aria-label="Cart"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span class="cart-count" data-cart-count>0</span></a>
+    </div>
+  </div>
+</header>
+
+<section class="section-tight">
+  <div class="container">
+    <h1 style="margin-bottom:28px;">My Orders</h1>
+    <div id="orders-root"></div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="footer-bottom" style="border-top:none;"><span>© 2026 Buyora. All rights reserved.</span></div>
+</footer>
+
+<script src="js/products.js"></script>
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/main.js"></script>
+<script>
+  async function loadOrders(){
+    let orders = JSON.parse(localStorage.getItem("buyora-orders") || "[]");
+    if(Api.isLoggedIn()){
+      try{
+        const data = await Api.myOrders();
+        if(Array.isArray(data.orders) && data.orders.length) orders = data.orders.concat(orders);
+      }catch(err){
+        console.warn("Could not load server orders:", err.message);
+      }
+    }
+
+    const root = document.getElementById("orders-root");
+    if(!orders.length){
+      root.innerHTML = `<div class="empty-state glass-card"><div class="icon-circle"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 2h12l2 4v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6l2-4z"/><path d="M4 6h16"/></svg></div><h3>No orders yet</h3><p style="max-width:340px;margin:0 auto 22px;">Your booked orders will appear here.</p><a href="shop.html" class="btn btn-primary">Browse products</a></div>`;
+      return;
+    }
+
+    root.innerHTML = orders.map(order => {
+      const date = order.createdAt || order.created_at;
+      const dateText = date ? new Date(date).toLocaleDateString("en-IN", {day:"2-digit", month:"short", year:"numeric"}) : "";
+      const items = order.items || [];
+      return `<article class="glass-card" style="padding:24px;margin-bottom:18px;">
+        <div style="display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:16px;">
+          <div><b style="color:var(--navy);">Order #${String(order.id || "").replace(/^DEMO-/, "BYR-")}</b><div style="font-size:.82rem;color:var(--slate);margin-top:4px;">${dateText}</div></div>
+          <span class="badge-new">${order.status || "Confirmed"}</span>
+        </div>
+        ${items.map(item => `<div class="order-summary-item">${item.image ? `<img src="${item.image}" alt="${item.name || item.productName || "Product"}">` : ""}<div style="flex:1;"><b style="font-size:.88rem;color:var(--navy);">${item.name || item.productName || "Product"}</b><div class="qty-badge">Qty ${item.qty || 1}</div></div>${item.price ? `<b>${formatINR(item.price * (item.qty || 1))}</b>` : ""}</div>`).join("")}
+        ${order.total ? `<div class="summary-row total"><span>Total</span><b>${formatINR(order.total)}</b></div>` : ""}
+      </article>`;
+    }).join("");
+  }
+  loadOrders();
+</script>
+</body>
+</html>
