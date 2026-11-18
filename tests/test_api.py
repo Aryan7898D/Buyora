@@ -2,6 +2,7 @@
 import os
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from app import create_app
 
@@ -53,6 +54,41 @@ class ApiTests(unittest.TestCase):
         with self.c.get("/js/config.js") as r:
             self.assertIn(b'"/api"', r.data)
             self.assertIn("javascript", r.mimetype)
+
+    def test_vercel_frontend_loads_without_database_connection(self):
+        vercel_env = {
+            "VERCEL": "1",
+            "BUYORA_DB_HOST": "db.example.invalid",
+            "BUYORA_DB_PORT": "3306",
+            "BUYORA_DB_USER": "buyora",
+            "BUYORA_DB_PASSWORD": "test-password",
+            "BUYORA_DB_NAME": "buyora",
+            "BUYORA_SECRET_KEY": "test-secret",
+            "BUYORA_ADMIN_PASSWORD": "test-admin-password",
+        }
+        with patch.dict(os.environ, vercel_env):
+            vercel_app = create_app()
+        with vercel_app.test_client().get("/") as response:
+            self.assertEqual(response.status_code, 200)
+            self.assertIn(b"Buyora", response.data)
+
+    def test_vercel_api_reports_database_unavailable(self):
+        vercel_env = {
+            "VERCEL": "1",
+            "BUYORA_DB_HOST": "db.example.invalid",
+            "BUYORA_DB_PORT": "3306",
+            "BUYORA_DB_USER": "buyora",
+            "BUYORA_DB_PASSWORD": "test-password",
+            "BUYORA_DB_NAME": "buyora",
+            "BUYORA_SECRET_KEY": "test-secret",
+            "BUYORA_ADMIN_PASSWORD": "test-admin-password",
+        }
+        with patch.dict(os.environ, vercel_env):
+            vercel_app = create_app()
+        with patch("app.db.init_db", side_effect=RuntimeError("database unavailable")):
+            response = vercel_app.test_client().get("/api/products")
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json(), {"error": "Database is unavailable."})
 
     def test_backend_source_is_not_exposed(self):
         self.assertEqual(self.c.get("/run.py").status_code, 404)

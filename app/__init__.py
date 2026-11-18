@@ -99,7 +99,10 @@ def create_app(overrides=None):
 
     if not app.config.get("TESTING"):
         logging.basicConfig(level=logging.INFO, format="%(levelname)s  %(message)s")
-    db.init_db(app)
+    if not is_vercel:
+        db.init_db(app)
+    else:
+        app.extensions["buyora_db_initialized"] = False
     app.teardown_appcontext(db.close_db)
 
     from .routes import auth_routes, orders_routes, products_routes
@@ -111,6 +114,21 @@ def create_app(overrides=None):
     def preflight():
         if request.method == "OPTIONS" and request.path.startswith("/api"):
             return "", 204
+
+    if is_vercel:
+        @app.before_request
+        def initialize_vercel_api_database():
+            if not request.path.startswith("/api/") or request.path == "/api/health":
+                return None
+            if app.extensions["buyora_db_initialized"]:
+                return None
+            try:
+                db.init_db(app)
+            except RuntimeError:
+                app.logger.exception("Buyora database is unavailable.")
+                return jsonify({"error": "Database is unavailable."}), 503
+            app.extensions["buyora_db_initialized"] = True
+            return None
 
     @app.after_request
     def add_cors(response):
